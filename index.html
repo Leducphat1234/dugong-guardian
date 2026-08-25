@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Dugong Guardian | Bảo vệ đồng cỏ biển</title>
+</head>
+<body>
+    <main class="app-shell">
+        <header class="topbar">
+            <a class="brand" href="#game" aria-label="Dugong Guardian, về trò chơi">
+                <span class="brand-mark" aria-hidden="true">◒</span>
+                <span><strong>DUGONG</strong><small>GUARDIAN</small></span>
+            </a>
+            <div class="mission-pill"><span class="pulse-dot"></span> NHIỆM VỤ: GIỮ BIỂN SỐNG</div>
+            <button class="icon-button" id="soundButton" type="button" aria-label="Bật hoặc tắt âm thanh" aria-pressed="false">♪</button>
+        </header>
+
+        <section class="game-layout" id="game" aria-label="Khu vực trò chơi">
+            <aside class="sidebar sidebar-left">
+                <div class="eyebrow">HÀNH TRÌNH 01 / CỎ BIỂN</div>
+                <h1>Người gác<br><em>đồng cỏ.</em></h1>
+                <p class="intro">Một chú dugong khỏe mạnh cần những bãi cỏ biển khỏe mạnh. Hãy giúp bạn ấy tìm thức ăn và trở về an toàn.</p>
+                <div class="instruction-card">
+                    <div class="card-label">DI CHUYỂN</div>
+                    <div class="keys" aria-label="Phím điều khiển">
+                        <kbd>W</kbd><kbd>↑</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd>
+                    </div>
+                    <span>Hướng dugong tránh hiểm nguy</span>
+                </div>
+                <div class="lesson-note">
+                    <span class="note-index">01</span>
+                    <p><strong>Cỏ biển là nhà.</strong><br>Chúng lưu trữ carbon, lọc nước và nuôi dưỡng vô số sinh vật.</p>
+                </div>
+                <button class="text-button" id="howButton" type="button">Cách chơi <span>↗</span></button>
+            </aside>
+
+            <section class="play-panel" aria-label="Màn hình biển">
+                <div class="hud-row">
+                    <div class="stat-block"><span class="stat-label">ĐIỂM</span><strong id="scoreValue">0000</strong></div>
+                    <div class="stat-block"><span class="stat-label">THỜI GIAN</span><strong id="timeValue">00:00</strong></div>
+                    <div class="status-chip" id="phaseValue"><span class="status-dot"></span> SẴN SÀNG</div>
+                </div>
+                <div class="canvas-wrap">
+                    <canvas id="gameCanvas" width="960" height="620" aria-label="Biển với dugong, cỏ biển và các chướng ngại vật"></canvas>
+                    <div class="canvas-caption"><span><i class="legend-sea"></i>CỎ BIỂN GIÀU DINH DƯỠNG</span><span><i class="legend-danger"></i>VÙNG NGUY HIỂM</span></div>
+                    <div class="start-card" id="startCard">
+                        <span class="start-icon">◒</span>
+                        <div class="eyebrow">KHU BẢO TỒN BIỂN</div>
+                        <h2>Giữ lấy màu xanh</h2>
+                        <p>Ăn cỏ biển giàu nitơ, ít chất xơ. Né rác, tàu thuyền và lưới đánh cá.</p>
+                        <button class="primary-button" id="startButton" type="button">Bắt đầu lặn <span>→</span></button>
+                    </div>
+                    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+                </div>
+                <div class="game-footer">
+                    <div class="fullness-panel">
+                        <div class="bar-heading"><span>ĐỘ NO</span><strong id="fullnessValue">100%</strong></div>
+                        <div class="meter"><span id="fullnessBar"></span></div>
+                        <p id="fullnessHint">Đang trong thời gian no. Tận hưởng chuyến lặn!</p>
+                    </div>
+                    <div class="objective"><span class="objective-icon">✦</span><div><span class="stat-label">MỤC TIÊU HIỆN TẠI</span><strong id="objectiveValue">Tìm cỏ biển chất lượng cao</strong></div></div>
+                </div>
+            </section>
+
+            <aside class="sidebar sidebar-right">
+                <div class="fact-image">
+                    <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Dugong%20(Dugong%20dugon).jpg" alt="Dugong trong môi trường biển" onerror="this.style.display='none'; this.parentElement.classList.add('image-fallback')">
+                    <span class="image-fallback-label">DUGONG<br><small>Dugong dugon</small></span>
+                    <span class="image-credit">ẢNH NGUỒN MỞ · WIKIMEDIA</span>
+                </div>
+                <div class="fact-content"><div class="eyebrow">GHI CHÚ TỰ NHIÊN / 01</div><h2>Kiến thức<br>giữa lòng biển.</h2><p id="factText">Dugong có thể ăn đến 30 kg cỏ biển mỗi ngày. Mỗi bữa ăn giúp phát tán hạt giống và giữ đồng cỏ khỏe mạnh.</p><div class="fact-progress"><span></span><span></span><span></span><span></span></div></div>
+                <div class="risk-list"><div><span class="risk-icon risk-net">⌁</span><span><strong>LƯỚI ĐÁNH CÁ</strong><small>Bơi mạnh để thoát</small></span></div><div><span class="risk-icon risk-trash">×</span><span><strong>RÁC NHỰA</strong><small>Không phải thức ăn</small></span></div><div><span class="risk-icon risk-boat">△</span><span><strong>TÀU THUYỀN</strong><small>Giữ khoảng cách</small></span></div></div>
+            </aside>
+        </section>
+
+        <footer class="site-footer"><span>DUY TRÌ SỰ SỐNG DƯỚI MẶT NƯỚC</span><span>© 2026 / HỌC QUA TRẢI NGHIỆM</span></footer>
+    </main>
+
+    <div class="modal-backdrop" id="howModal" hidden>
+        <section class="modal" role="dialog" aria-modal="true" aria-labelledby="howTitle">
+            <button class="modal-close" id="closeHow" type="button" aria-label="Đóng">×</button>
+            <div class="eyebrow">CẨM NANG LẶN</div><h2 id="howTitle">Một chuyến đi,<br><em>nhiều điều để học.</em></h2>
+            <p>Dùng WASD hoặc các phím mũi tên để bơi. Chạm vào cỏ biển để ăn. Loại cỏ có <strong>nitơ cao</strong> và <strong>chất xơ thấp</strong> cho điểm thưởng lớn hơn.</p>
+            <p>Độ no giữ nguyên trong vài phút đầu, sau đó giảm dần. Rác và va chạm tàu làm mất độ no. Khi mắc lưới, hãy bơi liên tục để tăng cơ hội thoát.</p>
+            <button class="primary-button" id="closeHowAction" type="button">Đã hiểu <span>→</span></button>
+        </section>
+    </div>
+
+    <div class="modal-backdrop" id="gameOverModal" hidden>
+        <section class="modal game-over-modal" role="dialog" aria-modal="true" aria-labelledby="overTitle">
+            <div class="eyebrow">KẾT THÚC CHUYẾN LẶN</div><h2 id="overTitle">Biển sẽ nhớ<br><em>bạn đã cố gắng.</em></h2>
+            <p id="deathReason">Hành trình kết thúc.</p>
+            <div class="final-score"><span>ĐIỂM CỦA BẠN</span><strong id="finalScore">0000</strong></div>
+            <div class="leaderboard"><div class="leaderboard-title"><span>XẾP HẠNG PHIÊN CHƠI</span><span>ĐIỂM</span></div><ol id="leaderboardList"></ol></div>
+            <button class="primary-button" id="restartButton" type="button">Lặn lại <span>↻</span></button>
+        </section>
+    </div>
+
+    <div class="sr-only" id="liveStatus" aria-live="polite"></div>
+    <script src="scripts.js"></script>
+</body>
+</html>
