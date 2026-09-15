@@ -116,6 +116,9 @@ document.querySelectorAll('.touch-button').forEach((button) => {
 	button.addEventListener('pointerup', release);
 	button.addEventListener('pointercancel', release);
 	button.addEventListener('lostpointercapture', release);
+	button.addEventListener('touchstart', (event) => { event.preventDefault(); keys.add(key); button.classList.add('is-pressed'); }, { passive: false });
+	button.addEventListener('touchend', release, { passive: false });
+	button.addEventListener('touchcancel', release, { passive: false });
 });
 startButton.addEventListener('click', startGame); restartButton.addEventListener('click', startGame);
 howButton.addEventListener('click', () => { howModal.hidden = false; closeHow.focus(); }); closeHow.addEventListener('click', () => { howModal.hidden = true; howButton.focus(); }); closeHowAction.addEventListener('click', () => { howModal.hidden = true; howButton.focus(); });
