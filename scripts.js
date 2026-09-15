@@ -109,17 +109,6 @@ function gameLoop(timestamp) { if (state.phase !== 'playing') { draw(); return; 
 
 window.addEventListener('keydown', (event) => { const key = event.key.length === 1 ? event.key.toLowerCase() : event.key; if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(key)) { event.preventDefault(); keys.add(key); } });
 window.addEventListener('keyup', (event) => { const key = event.key.length === 1 ? event.key.toLowerCase() : event.key; keys.delete(key); });
-document.querySelectorAll('.touch-button').forEach((button) => {
-	const key = button.dataset.key;
-	const release = () => { keys.delete(key); button.classList.remove('is-pressed'); };
-	button.addEventListener('pointerdown', (event) => { event.preventDefault(); keys.add(key); button.classList.add('is-pressed'); button.setPointerCapture(event.pointerId); });
-	button.addEventListener('pointerup', release);
-	button.addEventListener('pointercancel', release);
-	button.addEventListener('lostpointercapture', release);
-	button.addEventListener('touchstart', (event) => { event.preventDefault(); keys.add(key); button.classList.add('is-pressed'); }, { passive: false });
-	button.addEventListener('touchend', release, { passive: false });
-	button.addEventListener('touchcancel', release, { passive: false });
-});
 startButton.addEventListener('click', startGame); restartButton.addEventListener('click', startGame);
 howButton.addEventListener('click', () => { howModal.hidden = false; closeHow.focus(); }); closeHow.addEventListener('click', () => { howModal.hidden = true; howButton.focus(); }); closeHowAction.addEventListener('click', () => { howModal.hidden = true; howButton.focus(); });
 soundButton.addEventListener('click', () => { state.sound = !state.sound; soundButton.setAttribute('aria-pressed', String(state.sound)); soundButton.textContent = state.sound ? '♫' : '♪'; });
