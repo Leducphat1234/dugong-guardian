@@ -10,7 +10,9 @@ const closeHowAction = document.querySelector('#closeHowAction');
 const gameOverModal = document.querySelector('#gameOverModal');
 const toast = document.querySelector('#toast');
 const soundButton = document.querySelector('#soundButton');
+const touchButtons = document.querySelectorAll('.touch-btn');
 const keys = new Set();
+const pointerInput = { active: false, x: 0, y: 0 };
 const sessionScores = [];
 const facts = [
 	'Dugong có thể ăn đến 30 kg cỏ biển mỗi ngày. Mỗi bữa ăn giúp phát tán hạt giống và giữ đồng cỏ khỏe mạnh.',
@@ -43,6 +45,24 @@ function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 function quality(grass) { return Math.max(1, Math.round((grass.nitrogen * 1.4) - grass.fiber * .65)); }
 function showToast(message, duration = 2.8) { toast.textContent = message; toast.classList.add('show'); state.toastTimer = duration; }
 function announce(message) { document.querySelector('#liveStatus').textContent = message; }
+function setDirectionKey(key, pressed) { if (pressed) { keys.add(key); } else { keys.delete(key); } }
+function updatePointerInputFromEvent(event) {
+	const rect = canvas.getBoundingClientRect();
+	const pointX = ((event.clientX - rect.left) / rect.width) * canvas.width;
+	const pointY = ((event.clientY - rect.top) / rect.height) * canvas.height;
+	const dx = pointX - state.dugong.x;
+	const dy = pointY - state.dugong.y;
+	const distance = Math.hypot(dx, dy);
+	pointerInput.active = true;
+	if (distance < 8) {
+		pointerInput.x = 0;
+		pointerInput.y = 0;
+		return;
+	}
+	pointerInput.x = dx / distance;
+	pointerInput.y = dy / distance;
+}
+function clearPointerInput() { pointerInput.active = false; pointerInput.x = 0; pointerInput.y = 0; }
 function nextFact(index = null) { state.factIndex = index === null ? (state.factIndex + 1) % facts.length : index; document.querySelector('#factText').textContent = facts[state.factIndex]; }
 function formatTime(seconds) { return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`; }
 
@@ -75,8 +95,12 @@ function eatGrass(grass, index) {
 }
 function update(dt) {
 	state.elapsed += dt; state.grace = Math.max(0, state.grace - dt);
-	const inputX = (keys.has('ArrowRight') || keys.has('d') ? 1 : 0) - (keys.has('ArrowLeft') || keys.has('a') ? 1 : 0);
-	const inputY = (keys.has('ArrowDown') || keys.has('s') ? 1 : 0) - (keys.has('ArrowUp') || keys.has('w') ? 1 : 0);
+	const keyboardX = (keys.has('ArrowRight') || keys.has('d') ? 1 : 0) - (keys.has('ArrowLeft') || keys.has('a') ? 1 : 0);
+	const keyboardY = (keys.has('ArrowDown') || keys.has('s') ? 1 : 0) - (keys.has('ArrowUp') || keys.has('w') ? 1 : 0);
+	const pointerX = pointerInput.active ? pointerInput.x : 0;
+	const pointerY = pointerInput.active ? pointerInput.y : 0;
+	const inputX = keyboardX + pointerX;
+	const inputY = keyboardY + pointerY;
 	const acceleration = 330; state.dugong.vx += inputX * acceleration * dt; state.dugong.vy += inputY * acceleration * dt;
 	const drag = Math.pow(.001, dt); state.dugong.vx *= drag; state.dugong.vy *= drag;
 	const maxSpeed = 185; const speed = Math.hypot(state.dugong.vx, state.dugong.vy); if (speed > maxSpeed) { state.dugong.vx = state.dugong.vx / speed * maxSpeed; state.dugong.vy = state.dugong.vy / speed * maxSpeed; }
@@ -107,10 +131,41 @@ function drawDugong() {
 function draw() { drawBackground(); state.grasses.forEach(drawGrass); state.bubbles.forEach((bubble) => { context.globalAlpha = Math.max(0, bubble.life); context.strokeStyle = '#d9f6e0'; context.lineWidth = 1; context.beginPath(); context.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2); context.stroke(); context.globalAlpha = 1; }); drawDugong(); }
 function gameLoop(timestamp) { if (state.phase !== 'playing') { draw(); return; } const dt = Math.min(.05, (timestamp - state.lastTime) / 1000 || 0); state.lastTime = timestamp; update(dt); draw(); requestAnimationFrame(gameLoop); }
 
-window.addEventListener('keydown', (event) => { const key = event.key.length === 1 ? event.key.toLowerCase() : event.key; if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(key)) { event.preventDefault(); keys.add(key); } });
-window.addEventListener('keyup', (event) => { const key = event.key.length === 1 ? event.key.toLowerCase() : event.key; keys.delete(key); });
+window.addEventListener('keydown', (event) => { const key = event.key.length === 1 ? event.key.toLowerCase() : event.key; if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(key)) { event.preventDefault(); setDirectionKey(key, true); } });
+window.addEventListener('keyup', (event) => { const key = event.key.length === 1 ? event.key.toLowerCase() : event.key; setDirectionKey(key, false); });
 startButton.addEventListener('click', startGame); restartButton.addEventListener('click', startGame);
 howButton.addEventListener('click', () => { howModal.hidden = false; closeHow.focus(); }); closeHow.addEventListener('click', () => { howModal.hidden = true; howButton.focus(); }); closeHowAction.addEventListener('click', () => { howModal.hidden = true; howButton.focus(); });
 soundButton.addEventListener('click', () => { state.sound = !state.sound; soundButton.setAttribute('aria-pressed', String(state.sound)); soundButton.textContent = state.sound ? '♫' : '♪'; });
+touchButtons.forEach((button) => {
+	const key = button.dataset.key;
+	const release = () => {
+		button.classList.remove('is-pressed');
+		setDirectionKey(key, false);
+	};
+	button.addEventListener('pointerdown', (event) => {
+		event.preventDefault();
+		button.classList.add('is-pressed');
+		setDirectionKey(key, true);
+	});
+	button.addEventListener('pointerup', release);
+	button.addEventListener('pointerleave', release);
+	button.addEventListener('pointercancel', release);
+	button.addEventListener('contextmenu', (event) => event.preventDefault());
+});
+canvas.addEventListener('pointerdown', (event) => {
+	event.preventDefault();
+	if (state.phase === 'ready') {
+		startGame();
+		return;
+	}
+	updatePointerInputFromEvent(event);
+});
+canvas.addEventListener('pointermove', (event) => {
+	if (!pointerInput.active) return;
+	updatePointerInputFromEvent(event);
+});
+canvas.addEventListener('pointerup', clearPointerInput);
+canvas.addEventListener('pointerleave', clearPointerInput);
+canvas.addEventListener('pointercancel', clearPointerInput);
 canvas.addEventListener('click', () => { if (state.phase === 'ready') startGame(); });
 draw(); updateHud();
