@@ -38,7 +38,11 @@
 
             <section class="play-panel" aria-label="Màn hình biển">
                 <div class="hud-row">
-                    <div class="stat-block"><span class="stat-label">ĐIỂM</span><strong id="scoreValue">0000</strong></div>
+                    <div class="stat-block score-block">
+                        <span class="stat-label">ĐIỂM DUGONG</span>
+                        <strong id="scoreValue">00</strong>
+                        <div class="score-meter"><span id="scoreMeter"></span></div>
+                    </div>
                     <div class="stat-block"><span class="stat-label">THỜI GIAN</span><strong id="timeValue">00:00</strong></div>
                     <div class="status-chip" id="phaseValue"><span class="status-dot"></span> SẴN SÀNG</div>
                 </div>
@@ -50,15 +54,19 @@
                         <div class="eyebrow">KHU BẢO TỒN BIỂN</div>
                         <h2>Giữ lấy màu xanh</h2>
                         <p>Ăn cỏ biển giàu nitơ, ít chất xơ. Né rác, tàu thuyền và lưới đánh cá.</p>
+                        <div class="mode-switch" aria-label="Chế độ thời tiết">
+                            <button class="mode-btn active" data-mode="day" type="button">Ban ngày</button>
+                            <button class="mode-btn" data-mode="night" type="button">Ban đêm</button>
+                        </div>
                         <button class="primary-button" id="startButton" type="button">Bắt đầu lặn <span>→</span></button>
                     </div>
                     <div class="toast" id="toast" role="status" aria-live="polite"></div>
                 </div>
                 <div class="game-footer">
                     <div class="fullness-panel">
-                        <div class="bar-heading"><span>ĐỘ NO</span><strong id="fullnessValue">100%</strong></div>
-                        <div class="meter"><span id="fullnessBar"></span></div>
-                        <p id="fullnessHint">Đang trong thời gian no. Tận hưởng chuyến lặn!</p>
+                        <div class="bar-heading"><span>MỤC TIÊU</span><strong id="goalValue">MÀN 1 · 20</strong></div>
+                        <div class="meter"><span id="goalMeter"></span></div>
+                        <p id="fullnessHint">Chọn thời tiết và bắt đầu chuyến lặn.</p>
                     </div>
                     <div class="objective"><span class="objective-icon">✦</span><div><span class="stat-label">MỤC TIÊU HIỆN TẠI</span><strong id="objectiveValue">Tìm cỏ biển chất lượng cao</strong></div></div>
                 </div>
@@ -94,6 +102,31 @@
             <div class="final-score"><span>ĐIỂM CỦA BẠN</span><strong id="finalScore">0000</strong></div>
             <div class="leaderboard"><div class="leaderboard-title"><span>XẾP HẠNG PHIÊN CHƠI</span><span>ĐIỂM</span></div><ol id="leaderboardList"></ol></div>
             <button class="primary-button" id="restartButton" type="button">Lặn lại <span>↻</span></button>
+        </section>
+    </div>
+
+    <div class="modal-backdrop" id="levelModal" hidden>
+        <section class="modal level-modal" role="dialog" aria-modal="true" aria-labelledby="levelTitle">
+            <div class="eyebrow">MÀN CHƠI</div>
+            <h2 id="levelTitle">Màn 2</h2>
+            <p id="levelText">Bạn đã hoàn thành màn trước. Hãy bắt đầu thử thách tiếp theo.</p>
+            <button class="primary-button" id="levelButton" type="button">Bắt đầu Màn 2 <span>→</span></button>
+        </section>
+    </div>
+
+    <div class="modal-backdrop" id="quizModal" hidden>
+        <section class="modal quiz-modal" role="dialog" aria-modal="true" aria-labelledby="quizPrompt">
+            <div class="eyebrow">CÂU HỎI DUGONG</div>
+            <h2 id="quizPrompt">Dugong kiếm ăn ở đâu?</h2>
+            <div id="quizOptions" class="quiz-options" aria-live="polite"></div>
+        </section>
+    </div>
+
+    <div class="modal-backdrop" id="memoryModal" hidden>
+        <section class="modal memory-modal" role="dialog" aria-modal="true" aria-labelledby="memoryTitle">
+            <div class="eyebrow">TRÒ CHƠI GẮP CẶP</div>
+            <h2 id="memoryTitle">Tìm cặp hình tương tự</h2>
+            <div id="memoryBoard" class="memory-board" aria-label="Bảng ghép cặp hình ảnh"></div>
         </section>
     </div>
 
