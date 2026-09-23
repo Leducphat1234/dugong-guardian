@@ -10,9 +10,8 @@ const closeHowAction = document.querySelector('#closeHowAction');
 const gameOverModal = document.querySelector('#gameOverModal');
 const toast = document.querySelector('#toast');
 const soundButton = document.querySelector('#soundButton');
-const touchButtons = document.querySelectorAll('.touch-btn');
 const keys = new Set();
-const pointerInput = { active: false, x: 0, y: 0 };
+const pointerInput = { active: false, x: 0, y: 0, startX: 0, startY: 0 };
 const sessionScores = [];
 const facts = [
 	'Dugong có thể ăn đến 30 kg cỏ biển mỗi ngày. Mỗi bữa ăn giúp phát tán hạt giống và giữ đồng cỏ khỏe mạnh.',
@@ -50,11 +49,11 @@ function updatePointerInputFromEvent(event) {
 	const rect = canvas.getBoundingClientRect();
 	const pointX = ((event.clientX - rect.left) / rect.width) * canvas.width;
 	const pointY = ((event.clientY - rect.top) / rect.height) * canvas.height;
-	const dx = pointX - state.dugong.x;
-	const dy = pointY - state.dugong.y;
+	const dx = pointX - pointerInput.startX;
+	const dy = pointY - pointerInput.startY;
 	const distance = Math.hypot(dx, dy);
 	pointerInput.active = true;
-	if (distance < 8) {
+	if (distance < 6) {
 		pointerInput.x = 0;
 		pointerInput.y = 0;
 		return;
@@ -62,7 +61,7 @@ function updatePointerInputFromEvent(event) {
 	pointerInput.x = dx / distance;
 	pointerInput.y = dy / distance;
 }
-function clearPointerInput() { pointerInput.active = false; pointerInput.x = 0; pointerInput.y = 0; }
+function clearPointerInput() { pointerInput.active = false; pointerInput.x = 0; pointerInput.y = 0; pointerInput.startX = 0; pointerInput.startY = 0; }
 function nextFact(index = null) { state.factIndex = index === null ? (state.factIndex + 1) % facts.length : index; document.querySelector('#factText').textContent = facts[state.factIndex]; }
 function formatTime(seconds) { return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`; }
 
@@ -136,29 +135,18 @@ window.addEventListener('keyup', (event) => { const key = event.key.length === 1
 startButton.addEventListener('click', startGame); restartButton.addEventListener('click', startGame);
 howButton.addEventListener('click', () => { howModal.hidden = false; closeHow.focus(); }); closeHow.addEventListener('click', () => { howModal.hidden = true; howButton.focus(); }); closeHowAction.addEventListener('click', () => { howModal.hidden = true; howButton.focus(); });
 soundButton.addEventListener('click', () => { state.sound = !state.sound; soundButton.setAttribute('aria-pressed', String(state.sound)); soundButton.textContent = state.sound ? '♫' : '♪'; });
-touchButtons.forEach((button) => {
-	const key = button.dataset.key;
-	const release = () => {
-		button.classList.remove('is-pressed');
-		setDirectionKey(key, false);
-	};
-	button.addEventListener('pointerdown', (event) => {
-		event.preventDefault();
-		button.classList.add('is-pressed');
-		setDirectionKey(key, true);
-	});
-	button.addEventListener('pointerup', release);
-	button.addEventListener('pointerleave', release);
-	button.addEventListener('pointercancel', release);
-	button.addEventListener('contextmenu', (event) => event.preventDefault());
-});
 canvas.addEventListener('pointerdown', (event) => {
 	event.preventDefault();
 	if (state.phase === 'ready') {
 		startGame();
 		return;
 	}
-	updatePointerInputFromEvent(event);
+	const rect = canvas.getBoundingClientRect();
+	pointerInput.startX = ((event.clientX - rect.left) / rect.width) * canvas.width;
+	pointerInput.startY = ((event.clientY - rect.top) / rect.height) * canvas.height;
+	pointerInput.active = true;
+	pointerInput.x = 0;
+	pointerInput.y = 0;
 });
 canvas.addEventListener('pointermove', (event) => {
 	if (!pointerInput.active) return;
