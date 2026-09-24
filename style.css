@@ -29,11 +29,11 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--coral); outline
 .story-modal p,
 .facts-modal p { font-size: 13px; }
 .challenge-progress { margin: 12px 0 18px; padding: 10px 12px; background: #edf7ef; border: 1px solid var(--line); border-radius: 999px; font: 600 11px 'DM Mono', monospace; letter-spacing: .08em; color: var(--ocean); }
-.challenge-board { display: grid; grid-template-columns: repeat(5, minmax(50px, 1fr)); gap: 12px; margin-top: 14px; }
+.challenge-board { display: grid; grid-template-columns: repeat(6, minmax(46px, 1fr)); gap: 12px; margin-top: 14px; }
 .challenge-item { width: 100%; aspect-ratio: 1; border: 1px solid rgba(17,54,60,.18); border-radius: 14px; background: linear-gradient(135deg, #f4faf0, #e8f7ef); color: var(--ink); font-size: 28px; display: grid; place-items: center; transition: transform .2s ease, opacity .2s ease; }
 .challenge-item:hover { transform: translateY(-2px); }
 .challenge-item.collected { background: rgba(199,239,128,.45); border-color: rgba(8,124,135,.4); opacity: .7; }
 .story-content { margin: 14px 0 20px; color: var(--muted); line-height: 1.8; font-size: 14px; }
 #gameCanvas { width: 100%; max-width: 1200px; }
-@media (max-width: 768px) { .challenge-board { grid-template-columns: repeat(4, minmax(44px, 1fr)); } }
+@media (max-width: 768px) { .challenge-board { grid-template-columns: repeat(5, minmax(42px, 1fr)); } }
 

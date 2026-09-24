@@ -129,7 +129,8 @@ const state = {
   storyIndex: 0,
   storyScore: 0,
   currentQuizMode: null,
-  factModalShown: false
+  factModalShown: false,
+  zoom: 1
 };
 
 function randomPosition(margin = 55) {
@@ -279,7 +280,9 @@ function spawnMarineLife() {
     radius: typeRoll === 'coral' ? 18 : 12,
     drift: Math.random() * 2 - 1,
     phase: Math.random() * Math.PI * 2,
-    scale: 0.7 + Math.random() * 0.8
+    scale: 0.7 + Math.random() * 0.8,
+    vx: (Math.random() * 38 + 26) * (Math.random() < 0.5 ? -1 : 1),
+    vy: (Math.random() * 22 + 8) * (Math.random() < 0.5 ? -1 : 1)
   });
 }
 
@@ -450,6 +453,13 @@ function update(dt) {
 
   state.dugong.x = Math.max(30, Math.min(canvas.width - 30, state.dugong.x + state.dugong.vx * dt));
   state.dugong.y = Math.max(40, Math.min(canvas.height - 42, state.dugong.y + state.dugong.vy * dt));
+
+  state.marineLife.forEach((item) => {
+    item.x += item.vx * dt;
+    item.y += item.vy * dt;
+    if (item.x < 20 || item.x > canvas.width - 20) item.vx *= -1;
+    if (item.y < 30 || item.y > canvas.height - 30) item.vy *= -1;
+  });
 
   state.hazardSpawnTimer += dt;
   if (state.hazardSpawnTimer > 4.8 && state.hazards.length < 8) {
@@ -815,10 +825,13 @@ function startChallengeOne() {
   state.phase = 'challenge1';
   state.challengeOneCollected = 0;
   challengeOneBoard.innerHTML = '';
-  const challengePool = [
-    ...Array(10).fill('plastic'),
-    ...Array(5).fill('net')
-  ];
+  challengeOneBoard.style.background = 'linear-gradient(180deg, #f7ecd4 0%, #d9f1d9 42%, #a3d0c5 100%)';
+  challengeOneBoard.style.borderRadius = '20px';
+  challengeOneBoard.style.padding = '18px';
+  challengeOneBoard.style.minHeight = '320px';
+  challengeOneBoard.style.position = 'relative';
+
+  const challengePool = Array.from({ length: 30 }, (_, index) => (index % 3 === 0 ? 'net' : 'plastic'));
   const items = shuffle(challengePool);
   items.forEach((item, index) => {
     const card = document.createElement('button');
@@ -1048,6 +1061,11 @@ document.querySelectorAll('.mode-btn').forEach((button) => {
   button.addEventListener('click', () => setMode(button.dataset.mode));
 });
 
+function updateCanvasZoom() {
+  canvas.style.transform = `scale(${state.zoom})`;
+  canvas.style.transformOrigin = 'center center';
+}
+
 canvas.addEventListener('pointerdown', (event) => {
   event.preventDefault();
   if (state.phase === 'ready') {
@@ -1071,9 +1089,17 @@ canvas.addEventListener('pointerup', clearPointerInput);
 canvas.addEventListener('pointerleave', clearPointerInput);
 canvas.addEventListener('pointercancel', clearPointerInput);
 
+canvas.addEventListener('wheel', (event) => {
+  event.preventDefault();
+  const direction = event.deltaY > 0 ? -0.08 : 0.08;
+  state.zoom = Math.min(1.8, Math.max(0.8, state.zoom + direction));
+  updateCanvasZoom();
+}, { passive: false });
+
 canvas.addEventListener('click', () => {
   if (state.phase === 'ready') startGame();
 });
 
+updateCanvasZoom();
 updateHud();
 draw();
