@@ -101,8 +101,8 @@ const state = {
   factIndex: 0,
   lastTime: 0,
   dayClock: 0,
-  dayLength: 30,
-  nightLength: 22,
+  dayLength: 40,
+  nightLength: 30,
   dugong: { x: 520, y: 310, vx: 0, vy: 0, radius: 25 },
   grasses: [],
   hazards: [],
@@ -130,6 +130,7 @@ const state = {
   storyScore: 0,
   currentQuizMode: null,
   factModalShown: false,
+  shownSeaFacts: [],
   zoom: 1
 };
 
@@ -215,6 +216,7 @@ function resetLevelState() {
   state.storyScore = 0;
   state.currentQuizMode = null;
   state.factModalShown = false;
+  state.shownSeaFacts = [];
   for (let i = 0; i < 22; i += 1) spawnGrass();
   for (let i = 0; i < 14; i += 1) spawnMarineLife();
   updateHud();
@@ -368,7 +370,11 @@ function getGrassValue(grass) {
 
 function showDugongFact() {
   if (state.level > 3) return;
-  const fact = seaFacts[Math.floor(Math.random() * seaFacts.length)];
+  const availableFacts = seaFacts.filter((fact) => !state.shownSeaFacts.includes(fact));
+  if (!availableFacts.length) state.shownSeaFacts = [];
+  const factsToChoose = availableFacts.length ? availableFacts : seaFacts;
+  const fact = factsToChoose[Math.floor(Math.random() * factsToChoose.length)];
+  state.shownSeaFacts.push(fact);
   factsText.textContent = fact;
   factsModal.hidden = false;
   state.factModalShown = true;
@@ -397,7 +403,7 @@ function eatGrass(grass, index) {
   nextFact();
   showToast(`+${points} điểm · ${grass.quality === 'high' ? 'cỏ biển chất lượng cao' : 'cỏ biển chất lượng thấp'}`);
 
-  if (state.grassEaten % 5 === 0) {
+  if (state.grassEaten % 7 === 0) {
     showDugongFact();
   }
 

@@ -38,3 +38,13 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--coral); outline
 #gameCanvas { width: 100%; max-width: 1400px; }
 @media (max-width: 768px) { .challenge-board { grid-template-columns: repeat(5, minmax(42px, 1fr)); } }
 
+.creature-legend { display: grid; grid-template-columns: minmax(220px, .8fr) 1.8fr; gap: 34px; align-items: center; margin-top: 42px; padding: 24px 0 22px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.legend-heading .eyebrow { margin-bottom: 10px; }
+.legend-heading h2 { margin: 0; font: 600 clamp(22px, 2.2vw, 31px)/1.05 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
+.legend-items { display: grid; grid-template-columns: repeat(6, minmax(70px, 1fr)); gap: 10px; }
+.legend-item { display: grid; justify-items: center; gap: 8px; margin: 0; padding: 10px 5px; color: var(--muted); text-align: center; }
+.legend-image { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: #e5f3e6; font-size: 31px; }
+.legend-item figcaption { font: 500 10px 'DM Mono', monospace; letter-spacing: .03em; }
+@media (max-width: 1100px) { .creature-legend { grid-template-columns: 1fr; gap: 20px; } }
+@media (max-width: 680px) { .legend-items { grid-template-columns: repeat(3, 1fr); } }
+
