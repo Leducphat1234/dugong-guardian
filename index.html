@@ -47,7 +47,7 @@
                     <div class="status-chip" id="phaseValue"><span class="status-dot"></span> SẴN SÀNG</div>
                 </div>
                 <div class="canvas-wrap">
-                    <canvas id="gameCanvas" width="960" height="620" aria-label="Biển với dugong, cỏ biển và các chướng ngại vật"></canvas>
+                    <canvas id="gameCanvas" width="1200" height="620" aria-label="Biển với dugong, cỏ biển và các chướng ngại vật"></canvas>
                     <div class="canvas-caption"><span><i class="legend-sea"></i>CỎ BIỂN GIÀU DINH DƯỠNG</span></div>
                     <div class="start-card" id="startCard">
                         <span class="start-icon">◒</span>
@@ -127,6 +127,54 @@
             <div class="eyebrow">TRÒ CHƠI GẮP CẶP</div>
             <h2 id="memoryTitle">Tìm cặp hình tương tự</h2>
             <div id="memoryBoard" class="memory-board" aria-label="Bảng ghép cặp hình ảnh"></div>
+        </section>
+    </div>
+
+    <div class="modal-backdrop" id="grassWarningModal" hidden>
+        <section class="modal challenge-warning" role="dialog" aria-modal="true" aria-labelledby="grassWarningTitle">
+            <div class="eyebrow">CẢNH BÁO CỎ BIỂN</div>
+            <h2 id="grassWarningTitle">Cỏ biển còn rất ít!</h2>
+            <p>Cỏ biển hiện còn rất ít, không đủ cho Dugong ăn. Hãy hoàn thành 2 thử thách để phục hồi bãi cỏ biển trước khi Dugong tiếp tục bơi.</p>
+            <button class="primary-button" id="grassWarningStart" type="button">Bắt đầu thử thách <span>→</span></button>
+        </section>
+    </div>
+
+    <div class="modal-backdrop" id="challengeOneModal" hidden>
+        <section class="modal challenge-modal" role="dialog" aria-modal="true" aria-labelledby="challengeOneTitle">
+            <div class="eyebrow">THỬ THÁCH 1</div>
+            <h2 id="challengeOneTitle">Dọn sạch bãi biển</h2>
+            <p>Nhấp vào từng mảnh rác nhựa và lưới đánh cá để dọn sạch bãi biển. Thu thập đủ 15 vật phẩm để mở thử thách tiếp theo.</p>
+            <div class="challenge-progress"><span id="challengeOneProgress">0 / 15</span></div>
+            <div id="challengeOneBoard" class="challenge-board" aria-label="Bảng thu gom rác trên bãi biển"></div>
+        </section>
+    </div>
+
+    <div class="modal-backdrop" id="challengeTwoNoticeModal" hidden>
+        <section class="modal challenge-warning" role="dialog" aria-modal="true" aria-labelledby="challengeTwoNoticeTitle">
+            <div class="eyebrow">THỬ THÁCH 2</div>
+            <h2 id="challengeTwoNoticeTitle">Bạn đã hoàn thành thử thách đầu tiên!</h2>
+            <p>Hãy bắt đầu thử thách tiếp theo để khám phá hành trình của Dugong và góp phần phục hồi môi trường sống của loài này.</p>
+            <button class="primary-button" id="challengeTwoStart" type="button">Bắt đầu thử thách tiếp theo <span>→</span></button>
+        </section>
+    </div>
+
+    <div class="modal-backdrop" id="storyModal" hidden>
+        <section class="modal story-modal" role="dialog" aria-modal="true" aria-labelledby="storyTitle">
+            <div class="eyebrow">CÂU CHUYỆN DUGONG</div>
+            <h2 id="storyTitle">Hành trình trở lại Côn Đảo</h2>
+            <div id="storyContent" class="story-content">
+                Năm 1997, một con dugong từng quay trở lại Côn Đảo như một dấu mốc kỷ niệm của những vùng cỏ biển nguyên sơ. Nó bơi lặng lẽ qua những bãi cỏ xanh mướt, tựa như đang tìm lại một nơi từng gắn bó từ thuở nào. Từng nhịp bơi chậm là lời nhắc cho loài sinh vật này cần được bảo vệ, bởi cỏ biển không chỉ là thức ăn mà còn là ngôi nhà của nhiều sinh vật biển.
+            </div>
+            <button class="primary-button" id="storyStartQuiz" type="button">Đọc xong, bắt đầu câu hỏi <span>→</span></button>
+        </section>
+    </div>
+
+    <div class="modal-backdrop" id="factsModal" hidden>
+        <section class="modal facts-modal" role="dialog" aria-modal="true" aria-labelledby="factsTitle">
+            <div class="eyebrow">SỰ THẬT THÚ VỊ</div>
+            <h2 id="factsTitle">Dugong và bãi cỏ biển</h2>
+            <p id="factsText">Dugong có thể ăn tới 30 kg cỏ biển mỗi ngày, đồng thời giúp lan tỏa hạt giống và duy trì hệ sinh thái biển.</p>
+            <button class="primary-button" id="closeFactButton" type="button">Tiếp tục <span>→</span></button>
         </section>
     </div>
 

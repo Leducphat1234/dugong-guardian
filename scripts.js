@@ -19,6 +19,15 @@ const quizPrompt = document.querySelector('#quizPrompt');
 const quizOptions = document.querySelector('#quizOptions');
 const memoryModal = document.querySelector('#memoryModal');
 const memoryBoard = document.querySelector('#memoryBoard');
+const grassWarningModal = document.querySelector('#grassWarningModal');
+const challengeOneModal = document.querySelector('#challengeOneModal');
+const challengeOneBoard = document.querySelector('#challengeOneBoard');
+const challengeOneProgress = document.querySelector('#challengeOneProgress');
+const challengeTwoNoticeModal = document.querySelector('#challengeTwoNoticeModal');
+const storyModal = document.querySelector('#storyModal');
+const storyContent = document.querySelector('#storyContent');
+const factsModal = document.querySelector('#factsModal');
+const factsText = document.querySelector('#factsText');
 const keys = new Set();
 const pointerInput = { active: false, x: 0, y: 0, startX: 0, startY: 0 };
 const sessionScores = [];
@@ -34,6 +43,12 @@ const facts = [
   'Sự suy giảm cỏ biển do nước dâng, ô nhiễm và đánh bắt không kiểm soát là nguyên nhân quan trọng làm giảm quần thể dugong.',
   'Dugong có thể cảm nhận âm thanh và hướng di chuyển trong vùng biển nông dựa vào môi trường xung quanh.',
   'Mỗi bãi cỏ biển khỏe mạnh là một “rừng biển” chứa nhiều sinh vật và giúp điều hòa khí hậu.'
+];
+
+const seaFacts = [
+  'Tại Côn Đảo, dugong từng quay lại vùng cỏ biển như một “lời gọi” để tìm lại nơi trú ẩn và nuôi dưỡng con non. Bảo tồn cỏ biển là bảo tồn cả hệ sinh thái nơi chúng sống.',
+  'Dugong có thể ăn tới 30 kg cỏ biển mỗi ngày. Mỗi bãi cỏ biển khỏe mạnh giúp giữ nước sạch, ổn định trầm tích và là nơi trú ẩn cho nhiều loài biển khác.',
+  'Một số bãi cỏ biển trên thế giới là “rừng biển” dựng nên bởi hàng triệu cành lá mỏng, tạo nơi ẩn nấp, nơi sinh sản và môi trường sống cho cá, sò và các loài thủy sinh khác.'
 ];
 
 const levelConfig = {
@@ -55,6 +70,12 @@ const quizBank = [
   { q: 'Tại sao bảo vệ cỏ biển lại quan trọng?', options: ['Vì nó hỗ trợ nhiều loài và duy trì hệ sinh thái', 'Vì nó làm cho biển trở nên khô', 'Vì nó làm thành bờ biển mới', 'Vì nó làm nước biển tan ra'], answer: 0 },
   { q: 'Điều gì giúp dugong bơi hiệu quả trong vùng nước nông?', options: ['Cơ thể thuôn và khả năng điều hướng ở nơi cỏ biển dày', 'Bộ cánh lớn', 'Đuôi cứng như cánh cửa', 'Mắt phát sáng'], answer: 0 },
   { q: 'Dugong có quan hệ chặt chẽ nhất với loại môi trường nào?', options: ['Hệ sinh thái cỏ biển', 'Đầm lầy khô ráo', 'Rừng nguyên sinh trên núi', 'Bán đảo đá vôi'], answer: 0 }
+];
+
+const storyQuestions = [
+  { q: 'Dugong đã từng quay lại Côn Đảo vào năm nào?', options: ['1997', '2005', '1982', '2010'], answer: 0 },
+  { q: 'Theo câu chuyện, cỏ biển là gì với dugong?', options: ['Ngôi nhà và nguồn thức ăn chính', 'Nơi trú ngụ trên bờ biển', 'Một loại đá biển', 'Một khu vườn trên cạn'], answer: 0 },
+  { q: 'Lý do chính để bảo vệ dugong là gì?', options: ['Để duy trì hệ sinh thái cỏ biển và môi trường sống của nhiều loài', 'Để làm đẹp bãi biển cho du lịch', 'Để cho cá săn mồi dễ hơn', 'Để giảm lượng sóng biển'], answer: 0 }
 ];
 
 const memoryPairs = [
@@ -82,10 +103,11 @@ const state = {
   dayClock: 0,
   dayLength: 30,
   nightLength: 22,
-  dugong: { x: 480, y: 310, vx: 0, vy: 0, radius: 25 },
+  dugong: { x: 520, y: 310, vx: 0, vy: 0, radius: 25 },
   grasses: [],
   hazards: [],
   stars: [],
+  marineLife: [],
   bubbles: [],
   grassSpawnTimer: 0,
   hazardSpawnTimer: 0,
@@ -98,7 +120,16 @@ const state = {
   memorySelected: [],
   memoryLocked: false,
   memoryUnlocked: false,
-  levelReady: false
+  levelReady: false,
+  grassEaten: 0,
+  warningShown: false,
+  challengeOneCollected: 0,
+  challengeOneCompleted: false,
+  challengeTwoCompleted: false,
+  storyIndex: 0,
+  storyScore: 0,
+  currentQuizMode: null,
+  factModalShown: false
 };
 
 function randomPosition(margin = 55) {
@@ -159,6 +190,7 @@ function resetLevelState() {
   state.grasses = [];
   state.hazards = [];
   state.stars = [];
+  state.marineLife = [];
   state.bubbles = [];
   state.grassSpawnTimer = 0;
   state.hazardSpawnTimer = 0;
@@ -170,10 +202,20 @@ function resetLevelState() {
   state.memorySelected = [];
   state.memoryLocked = false;
   state.memoryUnlocked = false;
-  state.dugong = { x: 480, y: 310, vx: 0, vy: 0, radius: 25 };
+  state.dugong = { x: 520, y: 310, vx: 0, vy: 0, radius: 25 };
   state.dayClock = 0;
   state.mode = state.selectedMode;
-  for (let i = 0; i < 10; i += 1) spawnGrass();
+  state.grassEaten = 0;
+  state.warningShown = false;
+  state.challengeOneCollected = 0;
+  state.challengeOneCompleted = false;
+  state.challengeTwoCompleted = false;
+  state.storyIndex = 0;
+  state.storyScore = 0;
+  state.currentQuizMode = null;
+  state.factModalShown = false;
+  for (let i = 0; i < 22; i += 1) spawnGrass();
+  for (let i = 0; i < 14; i += 1) spawnMarineLife();
   updateHud();
 }
 
@@ -187,6 +229,11 @@ function startGame() {
   levelModal.hidden = true;
   quizModal.hidden = true;
   memoryModal.hidden = true;
+  grassWarningModal.hidden = true;
+  challengeOneModal.hidden = true;
+  challengeTwoNoticeModal.hidden = true;
+  storyModal.hidden = true;
+  factsModal.hidden = true;
   resetLevelState();
   state.lastTime = performance.now();
   requestAnimationFrame(gameLoop);
@@ -222,11 +269,25 @@ function spawnGrass() {
   });
 }
 
+function spawnMarineLife() {
+  const typeRoll = ['fish', 'fish', 'coral', 'star', 'shell'][Math.floor(Math.random() * 5)];
+  const position = randomPosition(30);
+  state.marineLife.push({
+    type: typeRoll,
+    x: position.x,
+    y: position.y,
+    radius: typeRoll === 'coral' ? 18 : 12,
+    drift: Math.random() * 2 - 1,
+    phase: Math.random() * Math.PI * 2,
+    scale: 0.7 + Math.random() * 0.8
+  });
+}
+
 function spawnHazard() {
-  const options = ['ship', 'waste', 'net'];
+  const options = ['ship', 'waste', 'net', 'net', 'waste', 'ship'];
   const type = options[Math.floor(Math.random() * options.length)];
-  let x = 60 + Math.random() * (canvas.width - 120);
-  let y = 60 + Math.random() * (canvas.height - 120);
+  const x = 60 + Math.random() * (canvas.width - 120);
+  const y = 60 + Math.random() * (canvas.height - 120);
   state.hazards.push({ type, x, y, radius: type === 'ship' ? 26 : 18, drift: Math.random() * 2 - 1 });
 }
 
@@ -278,16 +339,46 @@ function getGrassValue(grass) {
   return grass.quality === 'high' ? 2 : 1;
 }
 
+function showDugongFact() {
+  if (state.level > 3) return;
+  const fact = seaFacts[Math.floor(Math.random() * seaFacts.length)];
+  factsText.textContent = fact;
+  factsModal.hidden = false;
+  state.factModalShown = true;
+  state.phase = 'paused';
+}
+
+function restartGameplayPhase() {
+  state.phase = 'playing';
+  if (!factsModal.hidden) {
+    factsModal.hidden = true;
+  }
+  if (state.level === 1 || state.level === 2 || state.level === 3) {
+    state.lastTime = performance.now();
+    requestAnimationFrame(gameLoop);
+  }
+}
+
 function eatGrass(grass, index) {
   if (state.level === 3 && state.questionCount % 2 === 0) {
     state.questionCount += 1;
   }
   const points = getGrassValue(grass);
   state.score += points;
+  state.grassEaten += 1;
   state.grasses.splice(index, 1);
-  spawnGrass();
   nextFact();
   showToast(`+${points} điểm · ${grass.quality === 'high' ? 'cỏ biển chất lượng cao' : 'cỏ biển chất lượng thấp'}`);
+
+  if (state.grassEaten % 5 === 0) {
+    showDugongFact();
+  }
+
+  if (state.grasses.length <= 7 && !state.warningShown) {
+    state.warningShown = true;
+    showGrassWarning();
+  }
+
   if (state.level === 3 && state.score >= 0 && state.questionCount % 2 === 0) {
     askUniqueQuestion();
   }
@@ -360,14 +451,8 @@ function update(dt) {
   state.dugong.x = Math.max(30, Math.min(canvas.width - 30, state.dugong.x + state.dugong.vx * dt));
   state.dugong.y = Math.max(40, Math.min(canvas.height - 42, state.dugong.y + state.dugong.vy * dt));
 
-  state.grassSpawnTimer += dt;
-  if (state.grassSpawnTimer > 2.8 && state.grasses.length < 14) {
-    state.grassSpawnTimer = 0;
-    spawnGrass();
-  }
-
   state.hazardSpawnTimer += dt;
-  if (state.hazardSpawnTimer > 7 && state.hazards.length < 5) {
+  if (state.hazardSpawnTimer > 4.8 && state.hazards.length < 8) {
     state.hazardSpawnTimer = 0;
     spawnHazard();
   }
@@ -467,6 +552,65 @@ function drawBackground() {
     context.stroke();
   }
   context.globalAlpha = 1;
+
+  for (let i = 0; i < state.marineLife.length; i += 1) {
+    const item = state.marineLife[i];
+    if (item.type === 'fish') {
+      context.fillStyle = i % 2 === 0 ? '#e2ff6f' : '#85d1ff';
+      context.beginPath();
+      context.ellipse(item.x, item.y, 18, 10, 0, 0, Math.PI * 2);
+      context.fill();
+      context.beginPath();
+      context.moveTo(item.x + 15, item.y);
+      context.lineTo(item.x + 28, item.y - 8);
+      context.lineTo(item.x + 28, item.y + 8);
+      context.closePath();
+      context.fill();
+    } else if (item.type === 'coral') {
+      context.fillStyle = '#efb47d';
+      for (let branch = 0; branch < 6; branch += 1) {
+        context.save();
+        context.translate(item.x, item.y);
+        context.rotate(((Math.PI * 2) / 6) * branch + item.phase);
+        context.beginPath();
+        context.moveTo(0, 0);
+        context.lineTo(8, -18);
+        context.lineTo(4, -24);
+        context.lineTo(0, -8);
+        context.closePath();
+        context.fill();
+        context.restore();
+      }
+    } else if (item.type === 'star') {
+      context.fillStyle = '#ffbf69';
+      context.save();
+      context.translate(item.x, item.y);
+      context.rotate(item.phase);
+      context.beginPath();
+      for (let starIndex = 0; starIndex < 5; starIndex += 1) {
+        const outerX = Math.cos(((starIndex * 2 * Math.PI) / 5) - Math.PI / 2) * 11;
+        const outerY = Math.sin(((starIndex * 2 * Math.PI) / 5) - Math.PI / 2) * 11;
+        const innerX = Math.cos((((starIndex * 2 * Math.PI) / 5) + Math.PI / 5) - Math.PI / 2) * 5;
+        const innerY = Math.sin((((starIndex * 2 * Math.PI) / 5) + Math.PI / 5) - Math.PI / 2) * 5;
+        if (starIndex === 0) context.moveTo(outerX, outerY);
+        else context.lineTo(outerX, outerY);
+        context.lineTo(innerX, innerY);
+      }
+      context.closePath();
+      context.fill();
+      context.restore();
+    } else if (item.type === 'shell') {
+      context.fillStyle = '#dce7e7';
+      context.beginPath();
+      context.ellipse(item.x, item.y, 10, 7, 0, 0, Math.PI * 2);
+      context.fill();
+      context.strokeStyle = '#90b7c1';
+      context.beginPath();
+      context.moveTo(item.x - 6, item.y);
+      context.quadraticCurveTo(item.x, item.y - 10, item.x + 6, item.y);
+      context.stroke();
+    }
+  }
 }
 
 function drawGrass(grass) {
@@ -637,6 +781,7 @@ function askUniqueQuestion() {
   const question = getUnusedQuestion();
   quizPrompt.textContent = question.q;
   quizOptions.innerHTML = '';
+  state.currentQuizMode = 'level';
   question.options.forEach((option, index) => {
     const button = document.createElement('button');
     button.type = 'button';
@@ -657,6 +802,101 @@ function askUniqueQuestion() {
     quizOptions.appendChild(button);
   });
   quizModal.hidden = false;
+}
+
+function showGrassWarning() {
+  grassWarningModal.hidden = false;
+  state.phase = 'paused';
+}
+
+function startChallengeOne() {
+  grassWarningModal.hidden = true;
+  challengeOneModal.hidden = false;
+  state.phase = 'challenge1';
+  state.challengeOneCollected = 0;
+  challengeOneBoard.innerHTML = '';
+  const challengePool = [
+    ...Array(10).fill('plastic'),
+    ...Array(5).fill('net')
+  ];
+  const items = shuffle(challengePool);
+  items.forEach((item, index) => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'challenge-item';
+    card.dataset.type = item;
+    card.dataset.id = String(index);
+    card.textContent = item === 'plastic' ? '🧴' : '🪝';
+    card.setAttribute('aria-label', item === 'plastic' ? 'Rác nhựa' : 'Lưới đánh cá');
+    card.addEventListener('click', () => {
+      if (card.disabled) return;
+      card.disabled = true;
+      card.classList.add('collected');
+      card.textContent = '✓';
+      state.challengeOneCollected += 1;
+      challengeOneProgress.textContent = `${state.challengeOneCollected} / 15`;
+      if (state.challengeOneCollected >= 15) {
+        challengeOneModal.hidden = true;
+        state.challengeOneCompleted = true;
+        showToast('Bạn đã dọn sạch bãi biển!');
+        challengeTwoNoticeModal.hidden = false;
+        state.phase = 'paused';
+      }
+    });
+    challengeOneBoard.appendChild(card);
+  });
+  challengeOneProgress.textContent = '0 / 15';
+}
+
+function startStoryQuiz() {
+  storyModal.hidden = true;
+  state.storyIndex = 0;
+  state.storyScore = 0;
+  state.currentQuizMode = 'story';
+  showStoryQuestion();
+}
+
+function showStoryQuestion() {
+  if (state.storyIndex >= storyQuestions.length) {
+    quizModal.hidden = true;
+    state.challengeTwoCompleted = true;
+    showToast('Bạn đã hoàn thành thử thách 2!');
+    showLevelTransition('Màn 3');
+    return;
+  }
+  const question = storyQuestions[state.storyIndex];
+  quizPrompt.textContent = question.q;
+  quizOptions.innerHTML = '';
+  question.options.forEach((option, optionIndex) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'quiz-option';
+    button.textContent = option;
+    button.addEventListener('click', () => {
+      const correct = optionIndex === question.answer;
+      if (correct) state.storyScore += 1;
+      state.storyIndex += 1;
+      showToast(correct ? 'Đúng rồi!' : 'Sai rồi, hãy xem lại truyện.');
+      quizModal.hidden = true;
+      setTimeout(() => {
+        showStoryQuestion();
+      }, 250);
+    });
+    quizOptions.appendChild(button);
+  });
+  quizModal.hidden = false;
+}
+
+function showChallengeTwoNotice() {
+  challengeTwoNoticeModal.hidden = false;
+  state.phase = 'paused';
+}
+
+function showDugongFactsPopup() {
+  const fact = seaFacts[Math.floor(Math.random() * seaFacts.length)];
+  factsText.textContent = fact;
+  factsModal.hidden = false;
+  state.phase = 'paused';
 }
 
 function showLevelTransition(nextLabel) {
@@ -684,8 +924,12 @@ function showLevelTransition(nextLabel) {
     state.grasses = [];
     state.hazards = [];
     state.stars = [];
-    state.dugong = { x: 480, y: 310, vx: 0, vy: 0, radius: 25 };
-    for (let i = 0; i < 10; i += 1) spawnGrass();
+    state.marineLife = [];
+    state.warningShown = false;
+    state.grassEaten = 0;
+    state.dugong = { x: 520, y: 310, vx: 0, vy: 0, radius: 25 };
+    for (let i = 0; i < 22; i += 1) spawnGrass();
+    for (let i = 0; i < 14; i += 1) spawnMarineLife();
     state.lastTime = performance.now();
     requestAnimationFrame(gameLoop);
     showToast(`${nextLabel} bắt đầu`);
@@ -768,6 +1012,20 @@ window.addEventListener('keydown', (event) => {
 window.addEventListener('keyup', (event) => {
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
   setDirectionKey(key, false);
+});
+
+document.querySelector('#grassWarningStart').addEventListener('click', startChallengeOne);
+document.querySelector('#challengeTwoStart').addEventListener('click', () => {
+  challengeTwoNoticeModal.hidden = true;
+  storyModal.hidden = false;
+});
+document.querySelector('#storyStartQuiz').addEventListener('click', startStoryQuiz);
+document.querySelector('#closeFactButton').addEventListener('click', () => {
+  factsModal.hidden = true;
+  state.factModalShown = false;
+  state.phase = 'playing';
+  state.lastTime = performance.now();
+  requestAnimationFrame(gameLoop);
 });
 
 startButton.addEventListener('click', startGame);
