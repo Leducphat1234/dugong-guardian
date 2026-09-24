@@ -225,6 +225,8 @@ function startGame() {
   state.target = getCurrentTarget();
   state.phase = 'playing';
   state.levelReady = false;
+  state.zoom = 1;
+  updateCanvasZoom();
   startCard.style.display = 'none';
   gameOverModal.hidden = true;
   levelModal.hidden = true;
@@ -271,9 +273,11 @@ function spawnGrass() {
 }
 
 function spawnMarineLife() {
-  const typeRoll = ['fish', 'fish', 'coral', 'star', 'shell'][Math.floor(Math.random() * 5)];
+  const typeRoll = ['fish', 'fish', 'fish', 'fish', 'coral', 'star', 'shell'][Math.floor(Math.random() * 7)];
   const position = randomPosition(30);
-  state.marineLife.push({
+  const fishColors = ['#ffd166', '#ff6b6b', '#7ae582', '#90dbf4', '#ffafcc', '#f77f00', '#7b2cbf', '#f4d35e'];
+  const fishKinds = ['tropical', 'striped', 'round', 'long', 'mini'];
+  const item = {
     type: typeRoll,
     x: position.x,
     y: position.y,
@@ -282,16 +286,36 @@ function spawnMarineLife() {
     phase: Math.random() * Math.PI * 2,
     scale: 0.7 + Math.random() * 0.8,
     vx: (Math.random() * 38 + 26) * (Math.random() < 0.5 ? -1 : 1),
-    vy: (Math.random() * 22 + 8) * (Math.random() < 0.5 ? -1 : 1)
-  });
+    vy: (Math.random() * 22 + 8) * (Math.random() < 0.5 ? -1 : 1),
+    color: fishColors[Math.floor(Math.random() * fishColors.length)],
+    kind: fishKinds[Math.floor(Math.random() * fishKinds.length)],
+    size: 10 + Math.random() * 14
+  };
+
+  if (typeRoll === 'coral' || typeRoll === 'star' || typeRoll === 'shell') {
+    item.vx = 0;
+    item.vy = 0;
+  }
+
+  state.marineLife.push(item);
 }
 
 function spawnHazard() {
-  const options = ['ship', 'waste', 'net', 'net', 'waste', 'ship'];
+  const options = ['ship', 'waste', 'net', 'net', 'waste', 'ship', 'ship'];
   const type = options[Math.floor(Math.random() * options.length)];
   const x = 60 + Math.random() * (canvas.width - 120);
   const y = 60 + Math.random() * (canvas.height - 120);
-  state.hazards.push({ type, x, y, radius: type === 'ship' ? 26 : 18, drift: Math.random() * 2 - 1 });
+  const size = type === 'ship' ? (Math.random() * 1.2 + 0.7) : 1;
+  const wasteType = type === 'waste' ? ['bag', 'bottle', 'foam'][Math.floor(Math.random() * 3)] : 'bag';
+  state.hazards.push({
+    type,
+    subtype: wasteType,
+    x,
+    y,
+    radius: type === 'ship' ? 26 * size : 18,
+    scale: size,
+    drift: Math.random() * 2 - 1
+  });
 }
 
 function spawnStar() {
@@ -435,7 +459,7 @@ function update(dt) {
   const inputX = keyboardX + pointerX;
   const inputY = keyboardY + pointerY;
 
-  const speedMultiplier = state.mode === 'day' ? 1 : 0.72;
+  const speedMultiplier = state.mode === 'day' ? 1.12 : 0.78;
   const acceleration = 330 * speedMultiplier;
   state.dugong.vx += inputX * acceleration * dt;
   state.dugong.vy += inputY * acceleration * dt;
@@ -455,6 +479,7 @@ function update(dt) {
   state.dugong.y = Math.max(40, Math.min(canvas.height - 42, state.dugong.y + state.dugong.vy * dt));
 
   state.marineLife.forEach((item) => {
+    if (item.type === 'coral' || item.type === 'star' || item.type === 'shell') return;
     item.x += item.vx * dt;
     item.y += item.vy * dt;
     if (item.x < 20 || item.x > canvas.width - 20) item.vx *= -1;
@@ -566,16 +591,39 @@ function drawBackground() {
   for (let i = 0; i < state.marineLife.length; i += 1) {
     const item = state.marineLife[i];
     if (item.type === 'fish') {
-      context.fillStyle = i % 2 === 0 ? '#e2ff6f' : '#85d1ff';
+      const size = item.size || 12;
+      context.save();
+      context.translate(item.x, item.y);
+      if (item.vx < 0) context.scale(-1, 1);
+      context.fillStyle = item.color || '#7ae582';
       context.beginPath();
-      context.ellipse(item.x, item.y, 18, 10, 0, 0, Math.PI * 2);
+      context.ellipse(0, 0, size * 1.4, size, 0, 0, Math.PI * 2);
       context.fill();
       context.beginPath();
-      context.moveTo(item.x + 15, item.y);
-      context.lineTo(item.x + 28, item.y - 8);
-      context.lineTo(item.x + 28, item.y + 8);
+      context.moveTo(size * 1.3, 0);
+      context.lineTo(size * 2.2, -size * 0.7);
+      context.lineTo(size * 2.2, size * 0.7);
       context.closePath();
       context.fill();
+      context.fillStyle = 'rgba(255,255,255,0.8)';
+      context.beginPath();
+      context.arc(size * 0.4, -size * 0.2, size * 0.18, 0, Math.PI * 2);
+      context.fill();
+      context.fillStyle = '#083344';
+      context.fillRect(size * 0.52, -size * 0.15, 2, 2);
+      if (item.kind === 'striped') {
+        context.strokeStyle = 'rgba(255,255,255,0.45)';
+        context.lineWidth = 1.5;
+        context.beginPath();
+        context.moveTo(-size * 0.5, 0);
+        context.lineTo(size * 0.8, 0);
+        context.moveTo(-size * 0.1, -size * 0.4);
+        context.lineTo(size * 0.5, -size * 0.4);
+        context.moveTo(-size * 0.1, size * 0.4);
+        context.lineTo(size * 0.5, size * 0.4);
+        context.stroke();
+      }
+      context.restore();
     } else if (item.type === 'coral') {
       context.fillStyle = '#efb47d';
       for (let branch = 0; branch < 6; branch += 1) {
@@ -657,18 +705,59 @@ function drawGrass(grass) {
 function drawHazard(hazard) {
   context.save();
   context.translate(hazard.x, hazard.y);
+  const scale = hazard.scale || 1;
   if (hazard.type === 'ship') {
+    const width = 40 * scale;
+    const height = 20 * scale;
     context.fillStyle = '#f9d6a8';
-    context.fillRect(-18, -10, 36, 18);
+    context.fillRect(-width / 2, -height / 2, width, height);
     context.fillStyle = '#6d4d33';
-    context.fillRect(-14, -4, 28, 8);
+    context.fillRect(-width * 0.7, -height * 0.2, width * 1.4, height * 0.4);
     context.fillStyle = '#e76f51';
-    context.fillRect(-8, -20, 16, 10);
+    context.fillRect(-width * 0.2, -height * 1.1, width * 0.4, height * 0.5);
+    context.fillStyle = '#8bb7ff';
+    context.fillRect(-width * 0.45, -height * 0.08, width * 0.2, height * 0.18);
+    context.fillRect(width * 0.25, -height * 0.08, width * 0.2, height * 0.18);
   } else if (hazard.type === 'waste') {
-    context.fillStyle = '#8bb79a';
-    context.fillRect(-10, -14, 20, 28);
-    context.fillStyle = '#b7d7c1';
-    context.fillRect(-6, -10, 12, 20);
+    if (hazard.subtype === 'bag') {
+      context.fillStyle = '#a7d88d';
+      context.beginPath();
+      context.moveTo(-16, -18);
+      context.quadraticCurveTo(-20, 18, 0, 22);
+      context.quadraticCurveTo(20, 18, 16, -18);
+      context.closePath();
+      context.fill();
+      context.strokeStyle = '#6e9d66';
+      context.lineWidth = 2;
+      context.beginPath();
+      context.moveTo(-8, -16);
+      context.lineTo(-8, 12);
+      context.moveTo(8, -16);
+      context.lineTo(8, 12);
+      context.stroke();
+    } else if (hazard.subtype === 'bottle') {
+      context.fillStyle = '#9ad7ff';
+      context.fillRect(-9, -18, 18, 36);
+      context.fillStyle = '#dff3ff';
+      context.fillRect(-5, -12, 10, 18);
+      context.fillStyle = '#f0f3f9';
+      context.fillRect(-7, -24, 14, 8);
+      context.fillStyle = '#8ebdff';
+      context.fillRect(-3, -28, 6, 6);
+    } else {
+      context.fillStyle = '#d9b98a';
+      context.fillRect(-16, -14, 32, 28);
+      context.fillStyle = '#c9a077';
+      context.fillRect(-10, -8, 20, 14);
+      context.strokeStyle = '#9d7758';
+      context.lineWidth = 2;
+      context.beginPath();
+      context.moveTo(-12, -4); context.lineTo(12, -4);
+      context.moveTo(-12, 6); context.lineTo(12, 6);
+      context.moveTo(-8, -14); context.lineTo(-8, 14);
+      context.moveTo(8, -14); context.lineTo(8, 14);
+      context.stroke();
+    }
   } else {
     context.strokeStyle = '#dfe9ec';
     context.lineWidth = 2;
@@ -1095,6 +1184,12 @@ canvas.addEventListener('wheel', (event) => {
   state.zoom = Math.min(1.8, Math.max(0.8, state.zoom + direction));
   updateCanvasZoom();
 }, { passive: false });
+
+function updateCanvasZoom() {
+  canvas.style.transform = `scale(${state.zoom})`;
+  canvas.style.transformOrigin = 'center center';
+  canvas.style.transition = 'transform 0.18s ease';
+}
 
 canvas.addEventListener('click', () => {
   if (state.phase === 'ready') startGame();
