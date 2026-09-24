@@ -1,5 +1,6 @@
 const canvas = document.querySelector('#gameCanvas');
 const context = canvas.getContext('2d');
+const creatureScale = 1.25;
 const startCard = document.querySelector('#startCard');
 const startButton = document.querySelector('#startButton');
 const restartButton = document.querySelector('#restartButton');
@@ -103,7 +104,7 @@ const state = {
   dayClock: 0,
   dayLength: 40,
   nightLength: 30,
-  dugong: { x: 520, y: 310, vx: 0, vy: 0, radius: 25 },
+  dugong: { x: 520, y: 310, vx: 0, vy: 0, radius: 30 },
   grasses: [],
   hazards: [],
   stars: [],
@@ -204,7 +205,7 @@ function resetLevelState() {
   state.memorySelected = [];
   state.memoryLocked = false;
   state.memoryUnlocked = false;
-  state.dugong = { x: 520, y: 310, vx: 0, vy: 0, radius: 25 };
+  state.dugong = { x: 520, y: 310, vx: 0, vy: 0, radius: 30 };
   state.dayClock = 0;
   state.mode = state.selectedMode;
   state.grassEaten = 0;
@@ -266,7 +267,7 @@ function spawnGrass() {
   const fiber = qualityScore === 'high' ? 15 + Math.random() * 20 : 30 + Math.random() * 30;
   state.grasses.push({
     ...position,
-    radius: 16,
+    radius: 19,
     phase: Math.random() * Math.PI * 2,
     quality: qualityScore,
     nitrogen,
@@ -283,7 +284,7 @@ function spawnMarineLife() {
     type: typeRoll,
     x: position.x,
     y: position.y,
-    radius: typeRoll === 'coral' ? 18 : 12,
+    radius: typeRoll === 'coral' ? 22 : 15,
     drift: Math.random() * 2 - 1,
     phase: Math.random() * Math.PI * 2,
     scale: 0.7 + Math.random() * 0.8,
@@ -291,7 +292,7 @@ function spawnMarineLife() {
     vy: (Math.random() * 22 + 8) * (Math.random() < 0.5 ? -1 : 1),
     color: fishColors[Math.floor(Math.random() * fishColors.length)],
     kind: fishKinds[Math.floor(Math.random() * fishKinds.length)],
-    size: 10 + Math.random() * 14
+    size: 12 + Math.random() * 16
   };
 
   if (typeRoll === 'coral' || typeRoll === 'star' || typeRoll === 'shell') {
@@ -314,7 +315,7 @@ function spawnHazard() {
     subtype: wasteType,
     x,
     y,
-    radius: type === 'ship' ? 26 * size : 18,
+    radius: type === 'ship' ? 32 * size : 23,
     scale: size,
     drift: Math.random() * 2 - 1
   });
@@ -322,7 +323,7 @@ function spawnHazard() {
 
 function spawnStar() {
   const p = randomPosition(55);
-  state.stars.push({ ...p, radius: 12, phase: Math.random() * Math.PI * 2 });
+  state.stars.push({ ...p, radius: 15, phase: Math.random() * Math.PI * 2 });
 }
 
 function nextFact() {
@@ -600,6 +601,7 @@ function drawBackground() {
       const size = item.size || 12;
       context.save();
       context.translate(item.x, item.y);
+      context.scale(creatureScale, creatureScale);
       if (item.vx < 0) context.scale(-1, 1);
       context.fillStyle = item.color || '#7ae582';
       context.beginPath();
@@ -635,6 +637,7 @@ function drawBackground() {
       for (let branch = 0; branch < 6; branch += 1) {
         context.save();
         context.translate(item.x, item.y);
+        context.scale(creatureScale, creatureScale);
         context.rotate(((Math.PI * 2) / 6) * branch + item.phase);
         context.beginPath();
         context.moveTo(0, 0);
@@ -649,6 +652,7 @@ function drawBackground() {
       context.fillStyle = '#ffbf69';
       context.save();
       context.translate(item.x, item.y);
+      context.scale(creatureScale, creatureScale);
       context.rotate(item.phase);
       context.beginPath();
       for (let starIndex = 0; starIndex < 5; starIndex += 1) {
@@ -664,15 +668,19 @@ function drawBackground() {
       context.fill();
       context.restore();
     } else if (item.type === 'shell') {
+      context.save();
+      context.translate(item.x, item.y);
+      context.scale(creatureScale, creatureScale);
       context.fillStyle = '#dce7e7';
       context.beginPath();
-      context.ellipse(item.x, item.y, 10, 7, 0, 0, Math.PI * 2);
+      context.ellipse(0, 0, 10, 7, 0, 0, Math.PI * 2);
       context.fill();
       context.strokeStyle = '#90b7c1';
       context.beginPath();
-      context.moveTo(item.x - 6, item.y);
-      context.quadraticCurveTo(item.x, item.y - 10, item.x + 6, item.y);
+      context.moveTo(-6, 0);
+      context.quadraticCurveTo(0, -10, 6, 0);
       context.stroke();
+      context.restore();
     }
   }
 }
@@ -680,6 +688,7 @@ function drawBackground() {
 function drawGrass(grass) {
   context.save();
   context.translate(grass.x, grass.y);
+  context.scale(1.15, 1.15);
   context.rotate(Math.sin(state.elapsed * 1.4 + grass.phase) * .12);
   const good = grass.quality === 'high';
   context.strokeStyle = good ? '#93d75c' : '#8ac29f';
@@ -711,6 +720,7 @@ function drawGrass(grass) {
 function drawHazard(hazard) {
   context.save();
   context.translate(hazard.x, hazard.y);
+  context.scale(creatureScale, creatureScale);
   const scale = hazard.scale || 1;
   if (hazard.type === 'ship') {
     const width = 40 * scale;
@@ -783,6 +793,7 @@ function drawHazard(hazard) {
 function drawStar(star) {
   context.save();
   context.translate(star.x, star.y);
+  context.scale(creatureScale, creatureScale);
   context.rotate(star.phase);
   context.fillStyle = '#ffd76b';
   context.beginPath();
@@ -804,6 +815,7 @@ function drawDugong() {
   const d = state.dugong;
   context.save();
   context.translate(d.x, d.y);
+  context.scale(1.18, 1.18);
   if (d.vx < -5) context.scale(-1, 1);
   context.rotate(Math.max(-.18, Math.min(.18, d.vy / 900)));
   context.fillStyle = 'rgba(199,239,128,.18)';
