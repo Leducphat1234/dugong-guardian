@@ -48,3 +48,8 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--coral); outline
 @media (max-width: 1100px) { .creature-legend { grid-template-columns: 1fr; gap: 20px; } }
 @media (max-width: 680px) { .legend-items { grid-template-columns: repeat(3, 1fr); } }
 
+/* Restore the original desktop game proportions while keeping the touch-friendly button. */
+.app-shell { max-width: 1900px; }
+.game-layout { grid-template-columns: minmax(160px, 220px) minmax(0, 1fr) minmax(170px, 240px); gap: 32px; }
+.start-card { place-items: center; }
+
