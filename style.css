@@ -60,4 +60,14 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--coral); outline
 	.start-card .primary-button { display: inline-flex; align-items: center; justify-content: center; }
 }
 
+@media (max-width: 860px) {
+	.canvas-wrap canvas { aspect-ratio: 1.45 / 1; }
+	.start-card { padding: 12px; align-content: center; }
+	.start-icon { font-size: 30px; margin-bottom: 0; }
+	.start-card .eyebrow { margin-bottom: 5px; }
+	.start-card h2 { font-size: 24px; margin-bottom: 5px; }
+	.start-card p { max-width: 280px; margin-bottom: 10px; font-size: 10px; line-height: 1.35; }
+	.start-card .primary-button { margin: 0 auto; }
+}
+
 
