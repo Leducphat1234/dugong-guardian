@@ -1,6 +1,6 @@
 const canvas = document.querySelector('#gameCanvas');
 const context = canvas.getContext('2d');
-const creatureScale = 1.25;
+const creatureScale = 1.4;
 const startCard = document.querySelector('#startCard');
 const startButton = document.querySelector('#startButton');
 const restartButton = document.querySelector('#restartButton');
@@ -815,7 +815,7 @@ function drawDugong() {
   const d = state.dugong;
   context.save();
   context.translate(d.x, d.y);
-  context.scale(1.18, 1.18);
+  context.scale(1.3, 1.3);
   if (d.vx < -5) context.scale(-1, 1);
   context.rotate(Math.max(-.18, Math.min(.18, d.vy / 900)));
   context.fillStyle = 'rgba(199,239,128,.18)';
